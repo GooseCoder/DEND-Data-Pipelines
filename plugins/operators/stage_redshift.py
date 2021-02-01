@@ -56,15 +56,15 @@ class StageToRedshiftOperator(BaseOperator):
             COPY {schema}.{table}
             FROM 's3://{s3_bucket}/{s3_key}'
             with credentials
-            'aws_access_key_id={access_key};aws_secret_access_key={secret_key}'
+            'aws_access_key_id={aws_access_key};aws_secret_access_key={aws_secret_key}'
             region 'us-west-2'
             {copy_options};
-        """.format(schema=self.target_schema,
-                   table=self.target_table,
+        """.format(table=self.target_table,
+                   schema=self.target_schema,
+                   aws_access_key=credentials.access_key,
+                   aws_secret_key=credentials.secret_key,
                    s3_bucket=self.s3_origin,
                    s3_key=self.s3_prefix,
-                   access_key=credentials.access_key,
-                   secret_key=credentials.secret_key,
                    copy_options=copy_options)
 
         self.log.info(f'COPY data from bucket s3://{self.s3_origin}/{self.s3_prefix} to {self.target_schema}.{self.target_table} into Redshift')

@@ -24,8 +24,8 @@ class LoadDimensionOperator(BaseOperator):
         """
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        self.redshift_connection_id = redshift_connection_id
         self.target_table = table_target
+        self.redshift_connection_id = redshift_connection_id
         self.query = query
         self.autocommit = True
         self.truncate_before = truncate_before
