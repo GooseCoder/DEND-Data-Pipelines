@@ -3,6 +3,10 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 class LoadFactOperator(BaseOperator):
+    """
+    Data Operator that loads the data from the staging table into the 
+    fact table.
+    """
 
     ui_color = '#F98866'
 
@@ -11,12 +15,31 @@ class LoadFactOperator(BaseOperator):
                  # Define your operators params (with defaults) here
                  # Example:
                  # conn_id = your-connection-name
+                 redshift_connection_id,
+                 table_target,
+                 query,
                  *args, **kwargs):
+        """
+        Class constructor.
+        """
 
         super(LoadFactOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
+        self.target_table = table_target
+        self.query = query
+        self.redshift_connection_id = redshift_connection_id
+        self.autocommit = True
 
     def execute(self, context):
-        self.log.info('LoadFactOperator not implemented yet')
+        """
+        Executes the Insert.
+        """
+
+        self.log.info(f'Start INSERT into {self.target_table}')
+        self.hook = PostgresHook(postgres_connection_id=self.redshift_connection_id)
+        insert_sql = f"""
+            INSERT INTO {self.target_table}
+            {self.query};
+            COMMIT;
+        """
+        self.hook.run(insert_sql, self.autocommit)
+        self.log.info(f"Data added into {self.target_table} complete.")
